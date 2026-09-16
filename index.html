@@ -1433,6 +1433,9 @@
     function finishGame(winnings, description) {
       state.cash += winnings;
       state.totalWinnings += winnings;
+            const playerCaseObj = state.currentGame ? state.currentGame.cases.find(c => c.id === state.currentGame.playerCase) : null;
+      const caseValText = playerCaseObj ? `\nYour actual case (#${playerCaseObj.id}) had $${formatMoney(playerCaseObj.value)}.` : '';
+
 
       addTransaction("WINNINGS", winnings, 0, description);
 
@@ -1443,7 +1446,9 @@
       renderActiveGame();
       checkWinCondition();
 
-      alert(`Game Complete!\n${description}\nYour cash balance has been updated.`);
+            alert(`Game Complete!\n${description}\nYour cash balance has been updated.${caseValText}`);
+
+      
     }
 
     function handleFullReset() {
