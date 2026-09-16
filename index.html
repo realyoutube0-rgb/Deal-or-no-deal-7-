@@ -821,7 +821,7 @@
         <div class="instruction-card">
           <h3>MILESTONES & FINAL WIN</h3>
           <p>Milestones celebrate your cash achievements (e.g. $100k, $1M, $1B) and do <strong>NOT</strong> end the game.</p>
-          <p><strong>Final Victory Requirement:</strong> $1,000,000,000,000 Cash and $\le$ $1.01 Debt.</p>
+          <p><strong>Final Victory Requirement:</strong> $1,000,000,000,000 Cash and &le; $1.01 Debt.</p>
           <div class="examples-box">
             <p>✔ $1,000,000,000,000 + $0.00 debt → <strong>WIN</strong></p>
             <p>✔ $1,000,000,000,000 + $1.01 debt → <strong>WIN</strong></p>
@@ -904,7 +904,7 @@
     </div>
   </div>
 
-    <!-- MODAL: GAME OVER / RESULT -->
+  <!-- MODAL: GAME OVER / RESULT -->
   <div id="modal-game-over" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-title">GAME COMPLETE</div>
@@ -914,7 +914,6 @@
       <button class="btn btn-gold" onclick="closeGameOverModal()">Continue</button>
     </div>
   </div>
-
 
   <!-- JAVASCRIPT GAME LOGIC -->
   <script>
@@ -1443,17 +1442,6 @@
     }
 
     function finishGame(winnings, description) {
-      state.cash += winnings;
-      state.totalWinnings += winnings;
-            const playerCaseObj = state.currentGame ? state.currentGame.cases.find(c => c.id === state.currentGame.playerCase) : null;
-      const caseValText = playerCaseObj ? `\nYour actual case (#${playerCaseObj.id}) had $${formatMoney(playerCaseObj.value)}.` : '';
-
-
-      addTransaction("WINNINGS", winnings, 0, description);
-
-      state.currentGame = 
-
-            function finishGame(winnings, description) {
       const playerCaseObj = state.currentGame ? state.currentGame.cases.find(c => c.id === state.currentGame.playerCase) : null;
 
       state.cash += winnings;
@@ -1483,6 +1471,16 @@
       document.getElementById('modal-game-over').classList.remove('active');
     }
 
+    function handleFullReset() {
+      if (confirm("Are you sure you want to reset all progress? This action cannot be undone.")) {
+        localStorage.removeItem('dond_highroller_state');
+        state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        saveState();
+        updateUI();
+        renderActiveGame();
+        closeGameOverModal();
+      }
+    }
 
     window.onload = init;
   </script>
