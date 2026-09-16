@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Deal or No Deal - High Roller Edition</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Montserrat:wght@400;600;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #080808;
+      --panel-bg: #151515;
+      --panel-border: #2A2A2A;
+      --gold-main: #D4AF37;
+      --gold-bright: #F5D76E;
+      --gold-dark: #8C7323;
+      --red-dark: #8B0000;
+      --red-bright: #C1121F;
+      --green-bright: #2E7D32;
+      --text-white: #F5F5F5;
+      --text-muted: #8A8A8A;
+      --font-title: 'Cinzel', serif;
+      --font-money: 'Roboto Mono', monospace;
+      --font-ui: 'Montserrat', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: 75px; /* Space for bottom nav */
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 100%);
+      border-bottom: 2px solid var(--gold-main);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .logo {
+      font-family: var(--font-title);
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+
+    .header-balances {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: #000000;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .bal-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bal-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .bal-val {
+      font-family: var(--font-money);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .bal-val.cash { color: var(--gold-bright); }
+    .bal-val.debt { color: var(--red-bright); }
+
+    /* VIEW MANAGEMENT */
+    .view-container {
+      flex: 1;
+      padding: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* CARD PANELS */
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .panel-title {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      color: var(--gold-main);
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* INPUTS & BUTTONS */
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 12px;
+      font-family: var(--font-money);
+      color: var(--gold-main);
+      font-weight: 700;
+    }
+
+    .custom-input {
+      width: 100%;
+      background: #000;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 12px 12px 12px 28px;
+      color: #fff;
+      font-family: var(--font-money);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .custom-input:focus {
+      border-color: var(--gold-main);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.1s, filter 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-dark) 100%);
+      color: #000;
+    }
+
+    .btn-red {
+      background: linear-gradient(135deg, var(--red-bright) 0%, var(--red-dark) 100%);
+      color: #FFF;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--gold-main);
+      color: var(--gold-bright);
+    }
+
+    /* BANK STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #0D0D0D;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .stat-card .val {
+      font-family: var(--font-money);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* GAME UI */
+    .banker-banner {
+      background: linear-gradient(135deg, #1F1200 0%, #000000 100%);
+      border: 2px solid var(--gold-main);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .banker-banner.active {
+      display: block;
+      animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+      100% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.6); }
+    }
+
+    .banker-offer-val {
+      font-family: var(--font-money);
+      font-size: 2rem;
+      color: var(--gold-bright);
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .banker-stats {
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      border-top: 1px solid #333;
+      padding-top: 8px;
+    }
+
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 480px) {
+      .cases-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .case-btn {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #2A2A2A 0%, #111111 100%);
+      border: 1px solid var(--gold-main);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .case-btn .num {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+    }
+
+    .case-btn.selected-player {
+      background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-dark) 100%);
+      border-color: #FFF;
+    }
+    .case-btn.selected-player .num { color: #000; }
+
+    .case-btn.opened {
+      background: #0A0A0A;
+      border-color: #333;
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .case-btn.opened .num { color: #555; }
+
+    /* MONEY BOARD */
+    .money-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .money-column {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .money-slot {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-family: var(--font-money);
+      font-size: 0.75rem;
+      text-align: center;
+      color: var(--gold-bright);
+      transition: all 0.3s;
+    }
+
+    .money-slot.eliminated {
+      background: #080808;
+      border-color: #1A1A1A;
+      color: #444;
+      text-decoration: line-through;
+    }
+
+    /* TRANSACTION HISTORY TABLE */
+    .tx-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .tx-item {
+      background: #0D0D0D;
+      border-left: 3px solid var(--gold-main);
+      padding: 10px 12px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tx-item.LOAN { border-left-color: var(--gold-bright); }
+    .tx-item.GAME_ENTRY { border-left-color: var(--text-muted); }
+    .tx-item.INTEREST { border-left-color: var(--red-bright); }
+    .tx-item.WINNINGS { border-left-color: var(--green-bright); }
+    .tx-item.DEBT_PAYMENT { border-left-color: #0088FF; }
+
+    .tx-desc {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tx-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .tx-date {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .tx-amounts {
+      text-align: right;
+      font-family: var(--font-money);
+      font-size: 0.8rem;
+    }
+
+    /* HOW TO PLAY STYLES */
+    .instruction-card {
+      background: #0D0D0D;
+      border: 1px solid var(--panel-border);
+      border-left: 4px solid var(--gold-main);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .instruction-card h3 {
+      color: var(--gold-bright);
+      font-family: var(--font-title);
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .instruction-card p, .instruction-card li {
+      color: #D5D5D5;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .instruction-card ul {
+      margin-left: 18px;
+      margin-top: 6px;
+    }
+
+    .examples-box {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px dashed var(--gold-main);
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    /* MILESTONE TOAST BANNER */
+    .milestone-toast {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      left: 20px;
+      max-width: 400px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #1F1905, #0A0A0A);
+      border: 2px solid var(--gold-bright);
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+      z-index: 5000;
+      animation: slideUp 0.4s ease-out forwards;
+    }
+
+    .milestone-toast.fade-out {
+      animation: slideDown 0.4s ease-in forwards;
+    }
+
+    .milestone-title {
+      font-family: var(--font-title);
+      font-size: 0.85rem;
+      color: var(--gold-bright);
+      font-weight: 700;
+    }
+
+    .milestone-val {
+      font-family: var(--font-money);
+      font-size: 1.4rem;
+      color: #FFF;
+      font-weight: 700;
+      margin: 2px 0;
+    }
+
+    .milestone-tip-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      padding-top: 6px;
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(100px); opacity: 0; }
+    }
+
+    /* BOTTOM NAV */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: #0D0D0D;
+      border-top: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.6rem;
+      font-weight: 700;
+      width: 20%;
+      padding: 8px 0;
+    }
+
+    .nav-item.active {
+      color: var(--gold-bright);
+    }
+
+    .nav-icon {
+      font-size: 1.1rem;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--panel-bg);
+      border: 2px solid var(--gold-main);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+    }
+
+    .modal-card.bankrupt {
+      border-color: var(--red-bright);
+    }
+
+    .modal-title {
+      font-family: var(--font-title);
+      font-size: 1.5rem;
+      color: var(--gold-bright);
+      margin-bottom: 12px;
+    }
+
+    .modal-card.bankrupt .modal-title {
+      color: var(--red-bright);
+    }
+
+    .modal-desc {
+      font-size: 0.9rem;
+      color: var(--text-white);
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .case-reveal-val {
+      font-family: var(--font-money);
+      font-size: 2.2rem;
+      color: var(--gold-bright);
+      margin: 16px 0;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-top">
+      <div class="logo">Deal or No Deal</div>
+      <div style="font-size: 0.7rem; color: var(--gold-main); font-weight:700;">HIGH ROLLER</div>
+    </div>
+    <div class="header-balances">
+      <div class="bal-box">
+        <span class="bal-label">Cash Balance</span>
+        <span class="bal-val cash" id="head-cash">$0.00</span>
+      </div>
+      <div class="bal-box">
+        <span class="bal-label">Current Debt</span>
+        <span class="bal-val debt" id="head-debt">$0.00</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWS CONTAINER -->
+  <div class="view-container">
+
+    <!-- VIEW: GAME -->
+    <div id="view-game" class="view active">
+      
+      <!-- SETUP PANEL -->
+      <div id="game-setup-panel" class="panel">
+        <div class="panel-title">Start New Game</div>
+        
+        <div class="input-group">
+          <label>Game Entry Fee (Min $100)</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="input-entry-fee" class="custom-input" placeholder="100.00" value="100" min="100" step="50">
+          </div>
+        </div>
+
+        <div style="font-size:0.75rem; color: var(--text-muted); margin-bottom: 16px;">
+          * Interest rate: <strong>5.0% per game</strong> applied to outstanding debt upon game start.<br>
+          * Maximum prize scales dynamically with your entry fee (up to 12.5× entry fee)!<br>
+          * Goal: Reach <strong>$1 Trillion Cash</strong> with <strong>$1.01 or less Debt</strong>.
+        </div>
+
+        <button class="btn btn-gold" onclick="handleStartGame()">Start Game</button>
+      </div>
+
+      <!-- ACTIVE GAME BOARD -->
+      <div id="game-active-panel" style="display: none;">
+
+        <!-- BANKER OFFER BANNER -->
+        <div id="banker-banner" class="banker-banner">
+          <div style="font-size:0.8rem; color: var(--gold-main); font-weight:700; text-transform:uppercase;">Banker Offer</div>
+          <div class="banker-offer-val" id="banker-offer-amount">$0</div>
+          
+          <div style="display: flex; gap: 10px; margin-top: 12px;">
+            <button class="btn btn-gold" onclick="handleDeal()">DEAL</button>
+            <button class="btn btn-red" onclick="handleNoDeal()">NO DEAL</button>
+          </div>
+
+          <div class="banker-stats">
+            <div>Eliminated: <span id="stat-eliminated">$0</span></div>
+            <div>Remaining EV: <span id="stat-remaining-ev">$0</span></div>
+          </div>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="panel" style="padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size:0.8rem;">Round: <strong id="game-round-num" style="color:var(--gold-bright);">1</strong></div>
+          <div style="font-size:0.8rem;" id="game-instruction">Select Your Briefcase</div>
+        </div>
+
+        <!-- BRIEF CASES GRID -->
+        <div class="cases-grid" id="cases-grid"></div>
+
+        <!-- MONEY BOARD -->
+        <div class="panel">
+          <div class="panel-title" style="font-size: 0.9rem;">Prize Board</div>
+          <div class="money-board" id="money-board">
+            <div class="money-column" id="board-left"></div>
+            <div class="money-column" id="board-right"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- VIEW: BANK -->
+    <div id="view-bank" class="view">
+      
+      <div class="panel">
+        <div class="panel-title">Fictional Bank Summary</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="bal-label">Current Cash</div>
+            <div class="val" style="color:var(--gold-bright);" id="bank-cash">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="bal-label">Current Debt</div>
+            <div class="val" style="color:var(--red-bright);" id="bank-debt">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="bal-label">Borrowing Power</div>
+            <div class="val" style="color:#FFF;" id="bank-borrow-cap">$25,000.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="bal-label">Interest Rate</div>
+            <div class="val" style="color:var(--gold-main);">5.0% / Game</div>
+          </div>
+          <div class="stat-card">
+            <div class="bal-label">Total Borrowed</div>
+            <div class="val" id="bank-total-borrowed">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="bal-label">Total Interest</div>
+            <div class="val" id="bank-total-interest">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="bal-label">Total Game Fees</div>
+            <div class="val" id="bank-total-fees">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="bal-label">Total Winnings</div>
+            <div class="val" id="bank-total-winnings">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Borrow Money</div>
+        <div class="input-group">
+          <label>Custom Borrow Amount (Max Principal Cap: $25,000)</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="input-borrow-amount" class="custom-input" placeholder="1000.00" min="1" step="100">
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="handleBorrow()">Borrow Funds</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Pay Debt</div>
+        <div class="input-group">
+          <label>Custom Repayment Amount</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="input-pay-amount" class="custom-input" placeholder="500.00" min="0.01" step="50">
+          </div>
+        </div>
+        <button class="btn btn-outline" onclick="handlePayDebt()">Pay Off Debt</button>
+      </div>
+
+    </div>
+
+    <!-- VIEW: HISTORY -->
+    <div id="view-history" class="view">
+      <div class="panel">
+        <div class="panel-title">Auditable Transaction Ledger</div>
+        <div class="tx-list" id="tx-ledger-list"></div>
+      </div>
+    </div>
+
+    <!-- VIEW: HOW TO PLAY -->
+    <div id="view-how-to-play" class="view">
+      <div class="panel">
+        <div class="panel-title">How To Play</div>
+        
+        <div class="instruction-card">
+          <h3>GAME OBJECTIVE</h3>
+          <p>Build your fictional game-bank balance and reach <strong>$1,000,000,000,000</strong> (1 Trillion) while having no more than <strong>$1.01</strong> in debt.</p>
+        </div>
+
+        <div class="instruction-card">
+          <h3>HOW THE GAME WORKS</h3>
+          <ul>
+            <li>Choose a custom entry fee (Minimum entry fee is $100).</li>
+            <li>Pay the entry fee using fictional game money.</li>
+            <li>If you don't have enough cash, borrow fictional money subject to borrowing rules.</li>
+            <li>Choose your personal briefcase to keep.</li>
+            <li>Open briefcases each round to eliminate prizes from the board.</li>
+            <li>The Banker makes cash offers after each round based on remaining risk and EV.</li>
+            <li>Choose <strong>DEAL</strong> to accept the offer or <strong>NO DEAL</strong> to keep playing.</li>
+          </ul>
+        </div>
+
+        <div class="instruction-card">
+          <h3>CASES & BANKER</h3>
+          <p>There are always <strong>26 cases</strong> containing unique prizes. The Banker calculates offers using remaining briefcase values, current round, risk, and expected value.</p>
+        </div>
+
+        <div class="instruction-card">
+          <h3>FICTIONAL BANK</h3>
+          <p><strong>The Bank is part of the game's fictional economy. It is NOT a real bank.</strong></p>
+          <ul>
+            <li>All money, loans, debt, and interest are entirely fictional.</li>
+            <li>There are no real-money transactions, deposits, withdrawals, or real prizes.</li>
+          </ul>
+        </div>
+
+        <div class="instruction-card">
+          <h3>BORROWING & INTEREST</h3>
+          <ul>
+            <li>Maximum outstanding principal borrowed limit: <strong>$25,000</strong>.</li>
+            <li>Borrowing increases cash and debt by exactly the amount borrowed.</li>
+            <li>A <strong>5.0% interest rate</strong> is charged on outstanding debt when starting a game.</li>
+          </ul>
+        </div>
+
+        <div class="instruction-card">
+          <h3>DEBT LIMIT & PAYMENTS</h3>
+          <p>If your total debt reaches <strong>$30,000 or more</strong>, you go bankrupt and lose immediately.</p>
+          <p>You can pay off debt anytime in the Bank view using your available cash.</p>
+        </div>
+
+        <div class="instruction-card">
+          <h3>MILESTONES & FINAL WIN</h3>
+          <p>Milestones celebrate your cash achievements (e.g. $100k, $1M, $1B) and do <strong>NOT</strong> end the game.</p>
+          <p><strong>Final Victory Requirement:</strong> $1,000,000,000,000 Cash and $\le$ $1.01 Debt.</p>
+          <div class="examples-box">
+            <p>✔ $1,000,000,000,000 + $0.00 debt → <strong>WIN</strong></p>
+            <p>✔ $1,000,000,000,000 + $1.01 debt → <strong>WIN</strong></p>
+            <p>❌ $1,000,000,000,000 + $1.02 debt → <strong>NOT A WIN</strong></p>
+            <p>❌ $999,999,999,999 + $0.00 debt → <strong>NOT A WIN</strong></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VIEW: SETTINGS -->
+    <div id="view-settings" class="view">
+      <div class="panel">
+        <div class="panel-title">Game Settings & Reset</div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 16px;">
+          Goal: Reach <strong>$1,000,000,000,000</strong> cash with <strong>$1.01 or less debt</strong>.<br><br>
+          Resetting will completely wipe all progress, saved balances, debt, and history.
+        </p>
+        <button class="btn btn-red" onclick="handleFullReset()">Reset All Game Data</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav>
+    <div class="nav-item active" onclick="switchTab('game')">
+      <div class="nav-icon">🎮</div>
+      <div>GAME</div>
+    </div>
+    <div class="nav-item" onclick="switchTab('bank')">
+      <div class="nav-icon">🏦</div>
+      <div>BANK</div>
+    </div>
+    <div class="nav-item" onclick="switchTab('history')">
+      <div class="nav-icon">📜</div>
+      <div>HISTORY</div>
+    </div>
+    <div class="nav-item" onclick="switchTab('how-to-play')">
+      <div class="nav-icon">📖</div>
+      <div>RULES</div>
+    </div>
+    <div class="nav-item" onclick="switchTab('settings')">
+      <div class="nav-icon">⚙️</div>
+      <div>SETTINGS</div>
+    </div>
+  </nav>
+
+  <!-- MODAL: CASE REVEAL -->
+  <div id="modal-reveal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-title" id="reveal-title">Case Opened</div>
+      <div style="font-size:0.9rem; color:var(--text-muted);" id="reveal-subtitle">Case contains:</div>
+      <div class="case-reveal-val" id="reveal-value">$0.00</div>
+      <button class="btn btn-gold" onclick="closeRevealModal()">Continue</button>
+    </div>
+  </div>
+
+  <!-- MODAL: BANKRUPT -->
+  <div id="modal-bankrupt" class="modal-overlay">
+    <div class="modal-card bankrupt">
+      <div class="modal-title">BANKRUPT!</div>
+      <div class="modal-desc">
+        Your outstanding debt reached or exceeded <strong>$30,000.00</strong>.<br><br>
+        The bank has foreclosed on your account.
+      </div>
+      <button class="btn btn-red" onclick="handleFullReset()">Restart Game</button>
+    </div>
+  </div>
+
+  <!-- MODAL: TRILLION VICTORY -->
+  <div id="modal-victory" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-title">YOU DID IT!</div>
+      <div style="font-size:1.6rem; font-family:var(--font-money); color:var(--gold-bright); margin: 10px 0; font-weight:700;">$1,000,000,000,000</div>
+      <div style="font-family:var(--font-title); color:var(--gold-main); font-size:1.1rem; margin-bottom:12px; font-weight:700;">ONE TRILLION DOLLARS</div>
+      <div class="modal-desc">GAME COMPLETE</div>
+      <button class="btn btn-gold" onclick="handleFullReset()">RESTART GAME</button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT GAME LOGIC -->
+  <script>
+    // ==========================================
+    // MILESTONES & TIPS DEFINITION
+    // ==========================================
+    const MILESTONES = [
+      100000, 500000, 1000000, 2500000, 5000000,
+      10000000, 25000000, 50000000, 100000000, 250000000,
+      500000000, 1000000000, 2500000000, 5000000000,
+      10000000000, 25000000000, 50000000000, 100000000000,
+      250000000000, 500000000000, 1000000000000
+    ];
+
+    const MILESTONE_TIPS = {
+      100000: "Tip: A bigger balance doesn't make your debt disappear."
+    };
+
+    let milestoneQueue = [];
+    let isShowingMilestone = false;
+
+    // ==========================================
+    // STATE & DEFAULTS
+    // ==========================================
+    const DEFAULT_STATE = {
+      cash: 0.00,
+      debt: 0.00,
+      totalPrincipalBorrowed: 0.00,
+      totalInterestCharged: 0.00,
+      totalGameFees: 0.00,
+      totalWinnings: 0.00,
+      reachedMilestones: [],
+      transactions: [],
+      isBankrupt: false,
+      hasWon: false,
+      currentGame: null
+    };
+
+    let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const ROUND_SCHEDULE = [6, 5, 4, 3, 2, 1, 1, 1];
+
+    // ==========================================
+    // INITIALIZATION & PERSISTENCE
+    // ==========================================
+    function init() {
+      loadState();
+      updateUI();
+      if (state.currentGame) {
+        renderActiveGame();
+      }
+      checkGameLimits();
+    }
+
+    function saveState() {
+      localStorage.setItem('dond_highroller_state', JSON.stringify(state));
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem('dond_highroller_state');
+      if (saved) {
+        try {
+          state = JSON.parse(saved);
+          if (!state.reachedMilestones) state.reachedMilestones = [];
+        } catch (e) {
+          state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        }
+      }
+    }
+
+    function addTransaction(type, cashChange, debtChange, description) {
+      const tx = {
+        id: Date.now(),
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        type: type,
+        cashChange: cashChange,
+        debtChange: debtChange,
+        description: description,
+        cashAfter: state.cash,
+        debtAfter: state.debt
+      };
+      state.transactions.unshift(tx);
+    }
+
+    function formatMoney(val) {
+      return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // ==========================================
+    // UI MANAGEMENT
+    // ==========================================
+    function updateUI() {
+      document.getElementById('head-cash').innerText = '$' + formatMoney(state.cash);
+      document.getElementById('head-debt').innerText = '$' + formatMoney(state.debt);
+
+      document.getElementById('bank-cash').innerText = '$' + formatMoney(state.cash);
+      document.getElementById('bank-debt').innerText = '$' + formatMoney(state.debt);
+      
+      const borrowCap = Math.max(0, 25000 - state.totalPrincipalBorrowed);
+      document.getElementById('bank-borrow-cap').innerText = '$' + formatMoney(borrowCap);
+      
+      document.getElementById('bank-total-borrowed').innerText = '$' + formatMoney(state.totalPrincipalBorrowed);
+      document.getElementById('bank-total-interest').innerText = '$' + formatMoney(state.totalInterestCharged);
+      document.getElementById('bank-total-fees').innerText = '$' + formatMoney(state.totalGameFees);
+      document.getElementById('bank-total-winnings').innerText = '$' + formatMoney(state.totalWinnings);
+
+      renderLedger();
+
+      if (state.isBankrupt) {
+        document.getElementById('modal-bankrupt').classList.add('active');
+      } else {
+        document.getElementById('modal-bankrupt').classList.remove('active');
+      }
+
+      if (state.hasWon) {
+        document.getElementById('modal-victory').classList.add('active');
+      } else {
+        document.getElementById('modal-victory').classList.remove('active');
+      }
+    }
+
+    function renderLedger() {
+      const container = document.getElementById('tx-ledger-list');
+      if (state.transactions.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">No transactions recorded.</div>';
+        return;
+      }
+
+      container.innerHTML = state.transactions.map(tx => {
+        let cashStr = tx.cashChange > 0 ? `+$${formatMoney(tx.cashChange)}` : (tx.cashChange < 0 ? `-$${formatMoney(Math.abs(tx.cashChange))}` : '');
+        let debtStr = tx.debtChange > 0 ? `+$${formatMoney(tx.debtChange)} Debt` : (tx.debtChange < 0 ? `-$${formatMoney(Math.abs(tx.debtChange))} Debt` : '');
+        
+        return `
+          <div class="tx-item ${tx.type}">
+            <div class="tx-desc">
+              <span class="tx-title">${tx.description}</span>
+              <span class="tx-date">${tx.date}</span>
+            </div>
+            <div class="tx-amounts">
+              ${cashStr ? `<div style="color:${tx.cashChange > 0 ? 'var(--gold-bright)' : 'var(--text-muted)'}">${cashStr}</div>` : ''}
+              ${debtStr ? `<div style="color:${tx.debtChange > 0 ? 'var(--red-bright)' : '#0088FF'}">${debtStr}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+      document.getElementById(`view-${tabName}`).classList.add('active');
+      
+      const navs = document.querySelectorAll('.nav-item');
+      if (tabName === 'game') navs[0].classList.add('active');
+      if (tabName === 'bank') navs[1].classList.add('active');
+      if (tabName === 'history') navs[2].classList.add('active');
+      if (tabName === 'how-to-play') navs[3].classList.add('active');
+      if (tabName === 'settings') navs[4].classList.add('active');
+    }
+
+    // ==========================================
+    // MILESTONES SYSTEM
+    // ==========================================
+    function checkMilestones() {
+      MILESTONES.forEach(m => {
+        if (state.cash >= m && !state.reachedMilestones.includes(m)) {
+          state.reachedMilestones.push(m);
+          milestoneQueue.push(m);
+        }
+      });
+      saveState();
+      processMilestoneQueue();
+    }
+
+    function processMilestoneQueue() {
+      if (isShowingMilestone || milestoneQueue.length === 0) return;
+
+      isShowingMilestone = true;
+      const milestoneVal = milestoneQueue.shift();
+
+      const toast = document.createElement('div');
+      toast.className = 'milestone-toast';
+      
+      let tipHtml = MILESTONE_TIPS[milestoneVal] ? `<div class="milestone-tip-text">${MILESTONE_TIPS[milestoneVal]}</div>` : '';
+
+      toast.innerHTML = `
+        <div class="milestone-title">🎉 MILESTONE REACHED!</div>
+        <div class="milestone-val">$${milestoneVal.toLocaleString()}</div>
+        ${tipHtml}
+      `;
+
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => {
+          toast.remove();
+          isShowingMilestone = false;
+          processMilestoneQueue();
+        }, 400);
+      }, 3500);
+    }
+
+    // ==========================================
+    // BANKING OPERATIONS
+    // ==========================================
+    function handleBorrow() {
+      if (state.isBankrupt) return;
+      
+      const input = document.getElementById('input-borrow-amount');
+      const amount = parseFloat(input.value);
+      const remainingCap = 25000 - state.totalPrincipalBorrowed;
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid borrow amount.");
+        return;
+      }
+
+      if (amount > remainingCap) {
+        alert(`You can only borrow up to your remaining capacity of $${formatMoney(remainingCap)}.`);
+        return;
+      }
+
+      state.cash += amount;
+      state.debt += amount;
+      state.totalPrincipalBorrowed += amount;
+
+      addTransaction("LOAN", amount, amount, `Borrowed $${formatMoney(amount)}`);
+      
+      input.value = '';
+      checkMilestones();
+      saveState();
+      updateUI();
+      alert(`Successfully borrowed $${formatMoney(amount)}.`);
+    }
+
+    function handlePayDebt() {
+      if (state.isBankrupt) return;
+
+      const input = document.getElementById('input-pay-amount');
+      const amount = parseFloat(input.value);
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid payment amount.");
+        return;
+      }
+
+      if (amount > state.cash) {
+        alert("Payment exceeds your available cash balance.");
+        return;
+      }
+
+      if (amount > state.debt) {
+        alert("Payment exceeds your current total debt.");
+        return;
+      }
+
+      state.cash -= amount;
+      state.debt -= amount;
+
+      addTransaction("DEBT_PAYMENT", -amount, -amount, `Paid $${formatMoney(amount)} towards debt`);
+
+      input.value = '';
+      saveState();
+      updateUI();
+      checkWinCondition();
+    }
+
+    function applyInterest() {
+      if (state.debt <= 0) return;
+
+      const rate = 0.05;
+      const interestAmount = Math.round((state.debt * rate) * 100) / 100;
+
+      state.debt += interestAmount;
+      state.totalInterestCharged += interestAmount;
+
+      addTransaction("INTEREST", 0, interestAmount, `Interest Charge (5.0% on debt)`);
+      checkGameLimits();
+    }
+
+    function checkGameLimits() {
+      // BANKRUPTCY RULE: DEBT >= $30,000.00
+      if (state.debt >= 30000.00) {
+        state.isBankrupt = true;
+        saveState();
+        updateUI();
+      }
+    }
+
+    function checkWinCondition() {
+      // FINAL WIN RULE: CASH >= $1 TRILLION AND DEBT <= $1.01
+      if (state.cash >= 1000000000000 && state.debt <= 1.01) {
+        state.hasWon = true;
+        saveState();
+        updateUI();
+      }
+    }
+
+    // ==========================================
+    // PRIZE LADDER GENERATOR
+    // ==========================================
+    function generatePrizeLadder(fee) {
+      const mults = [
+        0.0001, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.08, 0.12,
+        0.18, 0.25, 0.35, 0.50, 0.75, 1.00, 1.30, 1.70, 2.20, 2.90,
+        3.80, 5.00, 6.70, 9.00, 12.50
+      ];
+
+      const ladder = [0.01];
+      for (let i = 0; i < mults.length; i++) {
+        let val = Math.round(fee * mults[i] * 100) / 100;
+        if (val <= ladder[i]) {
+          val = Math.round((ladder[i] + 0.01) * 100) / 100;
+        }
+        ladder.push(val);
+      }
+      return ladder;
+    }
+
+    // ==========================================
+    // GAME ENGINE LOGIC
+    // ==========================================
+    function handleStartGame() {
+      if (state.isBankrupt) return;
+
+      const feeInput = document.getElementById('input-entry-fee');
+      const fee = parseFloat(feeInput.value);
+
+      if (isNaN(fee) || fee < 100) {
+        alert("Minimum game entry fee is $100.00.");
+        return;
+      }
+
+      if (fee > state.cash) {
+        alert("INSUFFICIENT FUNDS! Please visit the Bank to borrow fictional funds.");
+        switchTab('bank');
+        return;
+      }
+
+      state.cash -= fee;
+      state.totalGameFees += fee;
+      addTransaction("GAME_ENTRY", -fee, 0, `Game Entry Fee Paid`);
+
+      applyInterest();
+      if (state.isBankrupt) return;
+
+      const ladder = generatePrizeLadder(fee);
+      const shuffledValues = [...ladder].sort(() => Math.random() - 0.5);
+
+      const cases = shuffledValues.map((val, idx) => ({
+        id: idx + 1,
+        value: val,
+        isOpen: false
+      }));
+
+      state.currentGame = {
+        entryFee: fee,
+        ladder: ladder,
+        cases: cases,
+        playerCase: null,
+        round: 1,
+        casesToOpenInRound: ROUND_SCHEDULE[0],
+        casesOpenedInRound: 0,
+        bankerOffer: null,
+        status: 'SELECT_PLAYER_CASE'
+      };
+
+      saveState();
+      updateUI();
+      renderActiveGame();
+    }
+
+    function renderActiveGame() {
+      const cg = state.currentGame;
+      if (!cg) {
+        document.getElementById('game-setup-panel').style.display = 'block';
+        document.getElementById('game-active-panel').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('game-setup-panel').style.display = 'none';
+      document.getElementById('game-active-panel').style.display = 'block';
+
+      const inst = document.getElementById('game-instruction');
+      const roundNum = document.getElementById('game-round-num');
+      roundNum.innerText = cg.round;
+
+      if (cg.status === 'SELECT_PLAYER_CASE') {
+        inst.innerText = "Tap a briefcase to keep as YOUR case!";
+      } else if (cg.status === 'OPENING_CASES') {
+        const remaining = cg.casesToOpenInRound - cg.casesOpenedInRound;
+        inst.innerText = `Open ${remaining} more briefcase${remaining > 1 ? 's' : ''}`;
+      } else if (cg.status === 'BANKER_OFFER') {
+        inst.innerText = "The Banker is making an offer...";
+      }
+
+      const grid = document.getElementById('cases-grid');
+      grid.innerHTML = cg.cases.map(c => {
+        let classes = 'case-btn';
+        if (cg.playerCase === c.id) classes += ' selected-player';
+        if (c.isOpen) classes += ' opened';
+
+        return `
+          <div class="${classes}" onclick="handleCaseClick(${c.id})">
+            <span class="num">${c.id}</span>
+            ${cg.playerCase === c.id ? '<span style="font-size:0.55rem; color:#000; font-weight:700;">YOURS</span>' : ''}
+          </div>
+        `;
+      }).join('');
+
+      renderMoneyBoard();
+
+      const banner = document.getElementById('banker-banner');
+      if (cg.status === 'BANKER_OFFER' && cg.bankerOffer) {
+        banner.classList.add('active');
+        document.getElementById('banker-offer-amount').innerText = '$' + formatMoney(cg.bankerOffer);
+        
+        const remainingVals = cg.cases.filter(c => !c.isOpen).map(c => c.value);
+        const elimVals = cg.cases.filter(c => c.isOpen).map(c => c.value);
+        const elimSum = elimVals.reduce((a, b) => a + b, 0);
+        const remEV = remainingVals.reduce((a, b) => a + b, 0) / remainingVals.length;
+
+        document.getElementById('stat-eliminated').innerText = '$' + formatMoney(elimSum);
+        document.getElementById('stat-remaining-ev').innerText = '$' + formatMoney(remEV);
+      } else {
+        banner.classList.remove('active');
+      }
+    }
+
+    function renderMoneyBoard() {
+      const cg = state.currentGame;
+      const leftCol = document.getElementById('board-left');
+      const rightCol = document.getElementById('board-right');
+
+      const openedValues = cg.cases.filter(c => c.isOpen).map(c => c.value);
+
+      const leftVals = cg.ladder.slice(0, 13);
+      const rightVals = cg.ladder.slice(13, 26);
+
+      const createSlot = (val) => {
+        const isElim = openedValues.includes(val);
+        return `<div class="money-slot ${isElim ? 'eliminated' : ''}">$${formatMoney(val)}</div>`;
+      };
+
+      leftCol.innerHTML = leftVals.map(createSlot).join('');
+      rightCol.innerHTML = rightVals.map(createSlot).join('');
+    }
+
+    function handleCaseClick(caseId) {
+      const cg = state.currentGame;
+      if (!cg) return;
+
+      const clickedCase = cg.cases.find(c => c.id === caseId);
+
+      if (cg.status === 'SELECT_PLAYER_CASE') {
+        cg.playerCase = caseId;
+        cg.status = 'OPENING_CASES';
+        saveState();
+        renderActiveGame();
+        return;
+      }
+
+      if (cg.status === 'OPENING_CASES') {
+        if (clickedCase.isOpen || clickedCase.id === cg.playerCase) return;
+
+        clickedCase.isOpen = true;
+        cg.casesOpenedInRound++;
+
+        document.getElementById('reveal-title').innerText = `Briefcase #${caseId}`;
+        document.getElementById('reveal-value').innerText = '$' + formatMoney(clickedCase.value);
+        document.getElementById('modal-reveal').classList.add('active');
+
+        if (cg.casesOpenedInRound >= cg.casesToOpenInRound) {
+          cg.bankerOffer = calculateBankerOffer();
+          cg.status = 'BANKER_OFFER';
+        }
+
+        saveState();
+        renderActiveGame();
+      }
+    }
+
+    function closeRevealModal() {
+      document.getElementById('modal-reveal').classList.remove('active');
+    }
+
+    function calculateBankerOffer() {
+      const cg = state.currentGame;
+      const remainingVals = cg.cases.filter(c => !c.isOpen).map(c => c.value);
+      const sum = remainingVals.reduce((a,b) => a + b, 0);
+      const ev = sum / remainingVals.length;
+
+      const roundMultipliers = [0.15, 0.25, 0.40, 0.55, 0.70, 0.85, 0.95];
+      const mult = roundMultipliers[Math.min(cg.round - 1, roundMultipliers.length - 1)];
+
+      return Math.round(ev * mult);
+    }
+
+    function handleDeal() {
+      const cg = state.currentGame;
+      if (!cg || cg.status !== 'BANKER_OFFER') return;
+
+      const winnings = cg.bankerOffer;
+      finishGame(winnings, `Accepted Banker's Deal of $${formatMoney(winnings)}`);
+    }
+
+    function handleNoDeal() {
+      const cg = state.currentGame;
+      if (!cg || cg.status !== 'BANKER_OFFER') return;
+
+      const remainingUnopened = cg.cases.filter(c => !c.isOpen);
+
+      if (remainingUnopened.length === 2) {
+        const playerObj = cg.cases.find(c => c.id === cg.playerCase);
+        finishGame(playerObj.value, `Opened Case #${playerObj.id} for $${formatMoney(playerObj.value)}`);
+      } else {
+        cg.round++;
+        cg.casesToOpenInRound = ROUND_SCHEDULE[Math.min(cg.round - 1, ROUND_SCHEDULE.length - 1)];
+        cg.casesOpenedInRound = 0;
+        cg.bankerOffer = null;
+        cg.status = 'OPENING_CASES';
+        saveState();
+        renderActiveGame();
+      }
+    }
+
+    function finishGame(winnings, description) {
+      state.cash += winnings;
+      state.totalWinnings += winnings;
+
+      addTransaction("WINNINGS", winnings, 0, description);
+
+      state.currentGame = null;
+      checkMilestones();
+      saveState();
+      updateUI();
+      renderActiveGame();
+      checkWinCondition();
+
+      alert(`Game Complete!\n${description}\nYour cash balance has been updated.`);
+    }
+
+    function handleFullReset() {
+      if (confirm("Are you sure you want to completely reset all cash, debt, and history?")) {
+        state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        saveState();
+        updateUI();
+        renderActiveGame();
+        alert("Game has been reset.");
+      }
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
