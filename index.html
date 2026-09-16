@@ -904,6 +904,18 @@
     </div>
   </div>
 
+    <!-- MODAL: GAME OVER / RESULT -->
+  <div id="modal-game-over" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-title">GAME COMPLETE</div>
+      <div class="modal-desc" id="game-over-desc"></div>
+      <div class="case-reveal-val" id="game-over-amount">$0.00</div>
+      <div style="font-size:0.95rem; color:var(--gold-bright); margin-bottom:20px; font-family:var(--font-money);" id="game-over-case-info"></div>
+      <button class="btn btn-gold" onclick="closeGameOverModal()">Continue</button>
+    </div>
+  </div>
+
+
   <!-- JAVASCRIPT GAME LOGIC -->
   <script>
     // ==========================================
@@ -1439,6 +1451,16 @@
 
       addTransaction("WINNINGS", winnings, 0, description);
 
+      state.currentGame = 
+
+            function finishGame(winnings, description) {
+      const playerCaseObj = state.currentGame ? state.currentGame.cases.find(c => c.id === state.currentGame.playerCase) : null;
+
+      state.cash += winnings;
+      state.totalWinnings += winnings;
+
+      addTransaction("WINNINGS", winnings, 0, description);
+
       state.currentGame = null;
       checkMilestones();
       saveState();
@@ -1446,20 +1468,21 @@
       renderActiveGame();
       checkWinCondition();
 
-            alert(`Game Complete!\n${description}\nYour cash balance has been updated.${caseValText}`);
-
-      
-    }
-
-    function handleFullReset() {
-      if (confirm("Are you sure you want to completely reset all cash, debt, and history?")) {
-        state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-        saveState();
-        updateUI();
-        renderActiveGame();
-        alert("Game has been reset.");
+      // Show custom styled modal
+      document.getElementById('game-over-desc').innerText = description;
+      document.getElementById('game-over-amount').innerText = '$' + formatMoney(winnings);
+      if (playerCaseObj) {
+        document.getElementById('game-over-case-info').innerText = `Your actual case (#${playerCaseObj.id}) had $${formatMoney(playerCaseObj.value)}`;
+      } else {
+        document.getElementById('game-over-case-info').innerText = '';
       }
+      document.getElementById('modal-game-over').classList.add('active');
     }
+
+    function closeGameOverModal() {
+      document.getElementById('modal-game-over').classList.remove('active');
+    }
+
 
     window.onload = init;
   </script>
